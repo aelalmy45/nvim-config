@@ -5,13 +5,13 @@
 local options = {
 
   base46 = {
-    theme = "bearded-arc", -- default theme
+    theme = "github_dark", -- default theme
     hl_add = {},
     hl_override = {},
     integrations = {},
     changed_themes = {},
     transparency = true,
-    theme_toggle = { "bearded-arc", "one_light" },
+    theme_toggle = { "github_dark", "one_light" },
   },
 
   ui = {
