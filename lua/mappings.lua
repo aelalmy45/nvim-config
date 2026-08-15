@@ -104,5 +104,23 @@ map("n", "<leader>dq", "<cmd>Trouble qflist toggle<cr>", { desc = "Quickfix List
 
 ----------------
 
+-- Diagnostics
+
+map("n", "]d", function()
+  vim.diagnostic.jump({
+    count = 1,
+    float = true,
+  })
+end, { desc = "Diagnostics Next" })
+
+map("n", "[d", function()
+  vim.diagnostic.jump({
+    count = -1,
+    float = true,
+  })
+end, { desc = "Diagnostics Previous" })
+
+---------------
+
 -- File explorer
 map("n", "<C-n>", "<cmd>Neotree toggle<cr>", { desc = "Neo-tree Toggle" })

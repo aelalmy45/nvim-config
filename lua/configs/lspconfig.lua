@@ -1,4 +1,5 @@
 require("nvchad.configs.lspconfig").defaults()
+require("configs.diagnostics")
 
 -- ts_ls
 vim.lsp.config["ts_ls"] = {
