@@ -38,9 +38,6 @@ vim.lsp.config["ruff"] = {
     -- Conform handles formatting.
     client.server_capabilities.documentFormattingProvider = false
     client.server_capabilities.documentRangeFormattingProvider = false
-
-    -- Pyright handles diagnostics.
-    client.server_capabilities.diagnosticProvider = false
   end,
 }
 

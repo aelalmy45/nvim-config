@@ -52,7 +52,7 @@ navic.setup {
 }
 
 -- ============================================================
--- Highlights
+-- Base Highlights
 -- ============================================================
 
 -- Parent symbols
@@ -60,85 +60,122 @@ vim.api.nvim_set_hl(0, "NavicText", {
   link = "Comment",
 })
 
--- Current symbol
-vim.api.nvim_set_hl(0, "NavicCurrent", {
-  link = "Normal",
-  bold = true,
-})
-
 -- Separator
 vim.api.nvim_set_hl(0, "NavicSeparator", {
   link = "Comment",
 })
 
--- Icons
-vim.api.nvim_set_hl(0, "NavicIconsClass", {
-  link = "Type",
-})
+-- ============================================================
+-- Symbol Highlight Mapping
+--
+-- نستخدم ألوان الـ colorscheme نفسها بدل ألوان ثابتة.
+-- ============================================================
 
-vim.api.nvim_set_hl(0, "NavicIconsMethod", {
-  link = "Function",
-})
+local symbol_highlights = {
+  File = "Directory",
 
-vim.api.nvim_set_hl(0, "NavicIconsFunction", {
-  link = "Function",
-})
+  Module = "Include",
+  Namespace = "Type",
+  Package = "Type",
 
-vim.api.nvim_set_hl(0, "NavicIconsVariable", {
-  link = "Identifier",
-})
+  Class = "Type",
+  Method = "Function",
 
-vim.api.nvim_set_hl(0, "NavicIconsProperty", {
-  link = "Identifier",
-})
+  Property = "Identifier",
+  Field = "Identifier",
 
-vim.api.nvim_set_hl(0, "NavicIconsField", {
-  link = "Identifier",
-})
+  Constructor = "Function",
 
-vim.api.nvim_set_hl(0, "NavicIconsConstructor", {
-  link = "Function",
-})
+  Enum = "Type",
+  Interface = "Type",
 
-vim.api.nvim_set_hl(0, "NavicIconsNamespace", {
-  link = "Type",
-})
+  Function = "Function",
+  Variable = "Identifier",
+  Constant = "Constant",
 
-vim.api.nvim_set_hl(0, "NavicIconsModule", {
-  link = "Type",
-})
+  String = "String",
+  Number = "Number",
+  Boolean = "Boolean",
 
-vim.api.nvim_set_hl(0, "NavicIconsPackage", {
-  link = "Type",
-})
+  Array = "Type",
+  Object = "Type",
+  Key = "Identifier",
+  Null = "Constant",
 
-vim.api.nvim_set_hl(0, "NavicIconsConstant", {
-  link = "Constant",
-})
+  EnumMember = "Constant",
+  Struct = "Type",
 
-vim.api.nvim_set_hl(0, "NavicIconsEnum", {
-  link = "Type",
-})
+  Event = "Special",
+  Operator = "Operator",
+  TypeParameter = "Type",
+}
 
-vim.api.nvim_set_hl(0, "NavicIconsInterface", {
-  link = "Type",
-})
+-- ============================================================
+-- Symbol Highlight Helpers
+-- ============================================================
 
-vim.api.nvim_set_hl(0, "NavicIconsStruct", {
-  link = "Type",
-})
+local function get_symbol_name(kind)
+  return vim.lsp.protocol.SymbolKind[kind]
+end
 
-vim.api.nvim_set_hl(0, "NavicIconsEnumMember", {
-  link = "Constant",
-})
+local function get_symbol_highlight(kind)
+  local symbol_name = get_symbol_name(kind)
 
-vim.api.nvim_set_hl(0, "NavicIconsOperator", {
-  link = "Operator",
-})
+  if not symbol_name then
+    return "NavicText"
+  end
 
-vim.api.nvim_set_hl(0, "NavicIconsTypeParameter", {
-  link = "Type",
-})
+  return symbol_highlights[symbol_name] or "NavicText"
+end
+
+-- ============================================================
+-- Current Symbol Highlights
+--
+-- نفس لون الـ Symbol + Bold
+-- ============================================================
+
+local function setup_current_highlight(kind_name, base_group)
+  if not kind_name then
+    return "NavicCurrent"
+  end
+
+  local group = "NavicCurrent" .. kind_name
+
+  local ok, hl = pcall(vim.api.nvim_get_hl, 0, {
+    name = base_group,
+    link = false,
+  })
+
+  if ok and hl then
+    local current = {}
+
+    if hl.fg then
+      current.fg = hl.fg
+    end
+
+    if hl.bg then
+      current.bg = hl.bg
+    end
+
+    if hl.sp then
+      current.sp = hl.sp
+    end
+
+    current.bold = true
+
+    vim.api.nvim_set_hl(0, group, current)
+
+    return group
+  end
+
+  -- Fallback
+  vim.api.nvim_set_hl(0, group, {
+    link = base_group,
+    bold = true,
+  })
+
+  return group
+end
 
 -- ============================================================
 -- Excluded Filetypes
@@ -167,22 +204,52 @@ local excluded_filetypes = {
 
 local function is_excluded(bufnr)
   local ft = vim.bo[bufnr].filetype
+
   return excluded_filetypes[ft] == true
 end
 
 local function escape_statusline(text)
-  -- '%' has a special meaning inside statusline/winbar expressions.
+  -- '%' له معنى خاص داخل statusline/winbar.
   return tostring(text):gsub("%%", "%%%%")
 end
 
-local function icon_highlight(kind)
-  local kind_name = vim.lsp.protocol.SymbolKind[kind]
+-- ============================================================
+-- Breadcrumb Limit
+--
+-- نعرض آخر 5 Symbols فقط.
+--
+-- مثال:
+--
+-- Person
+-- Data
+-- Repository
+-- Cache
+-- Manager
+-- validate
+--
+-- يصبح:
+--
+-- … → Data → Repository → Cache → Manager → validate
+--
+-- والـ current symbol دائمًا محفوظ.
+-- ============================================================
 
-  if not kind_name then
-    return "NavicText"
+local MAX_BREADCRUMB_ITEMS = 5
+
+local function trim_breadcrumb(data)
+  if #data <= MAX_BREADCRUMB_ITEMS then
+    return data, false
   end
 
-  return "NavicIcons" .. kind_name
+  local start_index = #data - MAX_BREADCRUMB_ITEMS + 1
+
+  local trimmed = {}
+
+  for index = start_index, #data do
+    trimmed[#trimmed + 1] = data[index]
+  end
+
+  return trimmed, true
 end
 
 -- ============================================================
@@ -210,28 +277,62 @@ function navic.get_custom_location(bufnr)
     return ""
   end
 
+  -- Limit breadcrumb depth.
+  local visible_data, truncated = trim_breadcrumb(data)
+
   local result = {}
 
-  for index, item in ipairs(data) do
-    local is_current = index == #data
+  -- ==========================================================
+  -- Ellipsis
+  -- ==========================================================
+
+  if truncated then
+    table.insert(result, "%#NavicSeparator#…%*")
+
+    table.insert(result, "%#NavicSeparator# 󰁔 %*")
+  end
+
+  -- ==========================================================
+  -- Symbols
+  -- ==========================================================
+
+  for index, item in ipairs(visible_data) do
+    local is_current = index == #visible_data
 
     local name = escape_statusline(item.name or "")
     local icon = item.icon or ""
 
-    local icon_group = icon_highlight(item.kind)
+    local symbol_name = get_symbol_name(item.kind)
 
-    -- Icon
-    table.insert(result, "%#" .. icon_group .. "#" .. escape_statusline(icon) .. "%*")
+    local symbol_group = get_symbol_highlight(item.kind)
 
-    -- Name
+    -- --------------------------------------------------------
+    -- Current symbol
+    -- --------------------------------------------------------
+
+    local name_group = symbol_group
+
     if is_current then
-      table.insert(result, "%#NavicCurrent#" .. name .. "%*")
-    else
-      table.insert(result, "%#NavicText#" .. name .. "%*")
+      name_group = setup_current_highlight(symbol_name, symbol_group)
     end
 
+    -- --------------------------------------------------------
+    -- Icon
+    -- --------------------------------------------------------
+
+    table.insert(result, "%#" .. symbol_group .. "#" .. escape_statusline(icon) .. "%*")
+
+    -- --------------------------------------------------------
+    -- Name
+    -- --------------------------------------------------------
+
+    table.insert(result, "%#" .. name_group .. "#" .. name .. "%*")
+
+    -- --------------------------------------------------------
     -- Separator
-    if index < #data then
+    -- --------------------------------------------------------
+
+    if index < #visible_data then
       table.insert(result, "%#NavicSeparator# 󰁔 %*")
     end
   end
@@ -279,7 +380,9 @@ vim.api.nvim_create_autocmd("LspAttach", {
       return
     end
 
-    -- Only attach to LSPs that provide document symbols.
+    -- Navic only works when the LSP provides
+    -- document symbols.
+
     if client.server_capabilities.documentSymbolProvider then
       navic.attach(client, bufnr)
 
