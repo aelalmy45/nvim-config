@@ -14,7 +14,6 @@ local options = {
     "bash",
     "typescript",
     "tsx",
-    "jsx",
   },
   highlight = {
     enable = true,

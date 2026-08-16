@@ -551,7 +551,7 @@ local function run_pkg_cmd(entry, action)
     vim.list_extend(cmd, split(entry.pkg))
   elseif entry.method == "pip" then
     cmd = action == "install"
-      and { "pip", "install", "--break-system-packages" }
+      and { "pip", "install", "--break-system-packages", "--upgrade" }
       or { "pip", "uninstall", "-y" }
     vim.list_extend(cmd, split(entry.pkg))
   end
@@ -614,7 +614,12 @@ local function setup_keymaps()
 
   vim.keymap.set("n", "X", function()
     local e = entry_under_cursor()
-    if e then uninstall_entry(e) end
+    if not e or not e.installed then return end
+
+    local choice = vim.fn.confirm("Uninstall " .. e.name .. "?", "&Yes\n&No", 2)
+    if choice == 1 then
+      uninstall_entry(e)
+    end
   end, opts)
 
   vim.keymap.set("n", "c", function()

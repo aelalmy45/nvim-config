@@ -398,8 +398,6 @@ vim.api.nvim_create_autocmd("LspAttach", {
 -- ============================================================
 
 vim.api.nvim_create_autocmd({
-  "CursorMoved",
-  "CursorMovedI",
   "BufEnter",
   "WinEnter",
   "BufWinEnter",

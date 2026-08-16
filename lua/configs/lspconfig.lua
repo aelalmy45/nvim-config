@@ -3,12 +3,22 @@ require "configs.diagnostics"
 require "configs.navic"
 
 -- ============================================================
+-- Helper: resolve a binary's real path dynamically (Termux-safe).
+-- Falls back to the bare name if not found on PATH yet.
+-- ============================================================
+
+local function bin(name)
+  local path = vim.fn.exepath(name)
+  return path ~= "" and path or name
+end
+
+-- ============================================================
 -- LSP Servers
 -- ============================================================
 
 -- C / C++
 vim.lsp.config["clangd"] = {
-  cmd = { "/data/data/com.termux/files/usr/bin/clangd" },
+  cmd = { bin "clangd" },
   filetypes = { "c", "cpp", "objc", "objcpp", "cuda" },
   root_markers = {
     ".clangd",
@@ -20,7 +30,7 @@ vim.lsp.config["clangd"] = {
 -- Python - Pyright
 vim.lsp.config["pyright"] = {
   cmd = {
-    "/data/data/com.termux/files/usr/bin/pyright-langserver",
+    bin "pyright-langserver",
     "--stdio",
   },
   filetypes = { "python" },
@@ -29,7 +39,7 @@ vim.lsp.config["pyright"] = {
 -- Python - Ruff
 vim.lsp.config["ruff"] = {
   cmd = {
-    "/data/data/com.termux/files/usr/bin/ruff",
+    bin "ruff",
     "server",
   },
   filetypes = { "python" },
@@ -44,7 +54,7 @@ vim.lsp.config["ruff"] = {
 -- Lua
 vim.lsp.config["lua_ls"] = {
   cmd = {
-    "/data/data/com.termux/files/usr/bin/lua-language-server",
+    bin "lua-language-server",
   },
   filetypes = { "lua" },
 
@@ -68,7 +78,7 @@ vim.lsp.config["lua_ls"] = {
 -- CSS
 vim.lsp.config["cssls"] = {
   cmd = {
-    "/data/data/com.termux/files/usr/bin/vscode-css-language-server",
+    bin "vscode-css-language-server",
     "--stdio",
   },
 
@@ -98,7 +108,7 @@ vim.lsp.config["cssls"] = {
 -- TypeScript / JavaScript
 vim.lsp.config["ts_ls"] = {
   cmd = {
-    "/data/data/com.termux/files/usr/bin/typescript-language-server",
+    bin "typescript-language-server",
     "--stdio",
   },
 
@@ -115,6 +125,12 @@ vim.lsp.config["ts_ls"] = {
     "jsconfig.json",
     ".git",
   },
+
+  on_attach = function(client, bufnr)
+    -- Conform (prettier) handles formatting.
+    client.server_capabilities.documentFormattingProvider = false
+    client.server_capabilities.documentRangeFormattingProvider = false
+  end,
 }
 
 -- ============================================================
@@ -128,7 +144,7 @@ vim.lsp.config["ts_ls"] = {
 -- Bash / Zsh
 vim.lsp.config["bashls"] = {
   cmd = {
-    "/data/data/com.termux/files/usr/bin/bash-language-server",
+    bin "bash-language-server",
     "start",
   },
 
@@ -142,7 +158,7 @@ vim.lsp.config["bashls"] = {
 -- Vimscript
 vim.lsp.config["vimls"] = {
   cmd = {
-    "/data/data/com.termux/files/usr/bin/vim-language-server",
+    bin "vim-language-server",
     "--stdio",
   },
 
@@ -154,7 +170,7 @@ vim.lsp.config["vimls"] = {
 -- Emmet
 vim.lsp.config["emmet_language_server"] = {
   cmd = {
-    "/data/data/com.termux/files/usr/bin/emmet-language-server",
+    bin "emmet-language-server",
     "--stdio",
   },
 
@@ -173,16 +189,29 @@ vim.lsp.config["emmet_language_server"] = {
 
 -- ============================================================
 -- Enable LSP Servers
+--
+-- بنفعّل بس السيرفرز اللي الـ binary بتاعها متثبت فعلاً
+-- (باستخدام lsp_manager)، عشان ما تطلعش أخطاء
+-- "command not found" لو لسه ماثبتهاش.
 -- ============================================================
 
-vim.lsp.enable {
-  "clangd",
-  "pyright",
-  "ruff",
-  "lua_ls",
-  "cssls",
-  "ts_ls",
+local wanted_servers = {
+  { name = "clangd", exe = "clangd" },
+  { name = "pyright", exe = "pyright-langserver" },
+  { name = "ruff", exe = "ruff" },
+  { name = "lua_ls", exe = "lua-language-server" },
+  { name = "cssls", exe = "vscode-css-language-server" },
+  { name = "ts_ls", exe = "typescript-language-server" },
 }
+
+local servers_to_enable = {}
+for _, server in ipairs(wanted_servers) do
+  if vim.fn.executable(server.exe) == 1 then
+    table.insert(servers_to_enable, server.name)
+  end
+end
+
+vim.lsp.enable(servers_to_enable)
 
 -- ============================================================
 -- LSP Keymaps
