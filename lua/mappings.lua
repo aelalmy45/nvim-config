@@ -159,14 +159,12 @@ map("n", "<leader>dq", "<cmd>Trouble qflist toggle<cr>", { desc = "Quickfix List
 map("n", "]d", function()
   vim.diagnostic.jump {
     count = 1,
-    float = true,
   }
 end, { desc = "Diagnostics Next" })
 
 map("n", "[d", function()
   vim.diagnostic.jump {
     count = -1,
-    float = true,
   }
 end, { desc = "Diagnostics Previous" })
 

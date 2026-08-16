@@ -244,9 +244,6 @@ vim.api.nvim_create_autocmd("LspAttach", {
     map("n", "<leader>rn", vim.lsp.buf.rename, "Rename")
     map("n", "<leader>ca", vim.lsp.buf.code_action, "Code Action")
 
-    -- Type information
-    map("n", "<leader>D", vim.lsp.buf.type_definition, "Type Definition")
-
     -- Symbols
     map("n", "<leader>ld", vim.lsp.buf.document_symbol, "Document Symbols")
     map("n", "<leader>ls", vim.lsp.buf.workspace_symbol, "Workspace Symbols")
