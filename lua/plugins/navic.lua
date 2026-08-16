@@ -3,7 +3,7 @@ return {
 
   opts = {
     lsp = {
-      auto_attach = true,
+      auto_attach = false,
     },
 
     highlight = true,

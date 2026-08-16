@@ -17,7 +17,7 @@ local options = {
   ui = {
     cmp = {
       icons_left = false, -- only for non-atom styles!
-      style = "default",  -- default/flat_light/flat_dark/atom/atom_colored
+      style = "default", -- default/flat_light/flat_dark/atom/atom_colored
       abbr_maxwidth = 100,
       -- for tailwind, css lsp etc
       format_colors = { lsp = true, icon = "󱓻" },
@@ -32,7 +32,15 @@ local options = {
       -- round and block will work for minimal theme only
       separator_style = "arrow",
       order = nil,
-      modules = nil,
+      modules = {
+        mode = function()
+          return require("configs.statusline").mode()
+        end,
+
+        lsp = function()
+          return require("configs.statusline").lsp()
+        end,
+      },
     },
 
     -- lazyload it when there are 1+ buffers
@@ -76,7 +84,6 @@ local options = {
       "                                                 ",
     },
 
-
     -- header = {
     --   "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣠⡤⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
     --   "⠀⠀⠀⠀⠀⠀⢀⣤⡶⠁⣠⣴⣾⠟⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
@@ -96,7 +103,6 @@ local options = {
     --   "                              ",
     -- },
 
-
     -- header = {
     --   "                      ",
     --   "  ▄▄         ▄ ▄▄▄▄▄▄▄",
@@ -111,10 +117,6 @@ local options = {
     --   "  Powered By  eovim ",
     --   "                      ",
     -- },
-
-
-
-
 
     buttons = {
       { txt = "  Find File", keys = "ff", cmd = "Telescope find_files" },
@@ -158,10 +160,9 @@ local options = {
   lsp = { signature = false },
 
   cheatsheet = {
-    theme = "grid",                                                     -- simple/grid
+    theme = "grid", -- simple/grid
     excluded_groups = { "terminal (t)", "autopairs", "Nvim", "Opens" }, -- can add group name or with mode
   },
-
 
   colorify = {
     enabled = true,
