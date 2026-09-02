@@ -18,40 +18,38 @@ map("n", "r", function()
   local filetype = vim.bo.filetype
   local filename = vim.fn.expand "%"
 
-  -- تجاهل الملفات غير المحفوظة
   if filename == "" then
     vim.notify("No file to run", vim.log.levels.WARN)
     return
   end
 
-  -- احفظ الملف لو قابل للتعديل
   if vim.bo.modifiable then
     vim.cmd "silent! write"
   end
 
+  local compiled_langs = {
+    c = true,
+    cpp = true,
+    rust = true,
+  }
+
   local commands = {
     python = "python " .. filename,
-
     cpp = "g++ " .. filename .. " -o $HOME/tmp/a.out && $HOME/tmp/a.out",
-
     c = "gcc " .. filename .. " -o $HOME/tmp/a.out && $HOME/tmp/a.out",
-
     javascript = "node " .. filename,
     typescript = "ts-node " .. filename,
-
     sh = "bash " .. filename,
     bash = "bash " .. filename,
     zsh = "zsh " .. filename,
-
     lua = "lua " .. filename,
-
     rust = "rustc " .. filename .. " -o $HOME/tmp/a.out && $HOME/tmp/a.out",
-
     go = "go run " .. filename,
   }
 
-  -- إنشاء مجلد tmp لو مش موجود
-  vim.fn.mkdir(vim.fn.expand "$HOME/tmp", "p")
+  if compiled_langs[filetype] then
+    vim.fn.mkdir(vim.fn.expand "$HOME/tmp", "p")
+  end
 
   local cmd = commands[filetype]
 
