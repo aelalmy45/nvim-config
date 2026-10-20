@@ -38,7 +38,7 @@ map("n", "r", function()
     cpp = "g++ " .. filename .. " -o $HOME/tmp/a.out && $HOME/tmp/a.out",
     c = "gcc " .. filename .. " -o $HOME/tmp/a.out && $HOME/tmp/a.out",
     javascript = "node " .. filename,
-    typescript = "ts-node " .. filename,
+    typescript = "node " .. filename,
     sh = "bash " .. filename,
     bash = "bash " .. filename,
     zsh = "zsh " .. filename,
