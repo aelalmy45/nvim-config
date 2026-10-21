@@ -44,13 +44,12 @@ vim.lsp.config["ruff"] = {
   },
   filetypes = { "python" },
 
-  on_attach = function(client, bufnr)
+  on_attach = function(client, _)
     -- Conform handles formatting.
     client.server_capabilities.documentFormattingProvider = false
     client.server_capabilities.documentRangeFormattingProvider = false
   end,
 }
-
 -- Lua
 vim.lsp.config["lua_ls"] = {
   cmd = {
@@ -196,12 +195,12 @@ vim.lsp.config["emmet_language_server"] = {
 -- ============================================================
 
 local wanted_servers = {
-  { name = "clangd", exe = "clangd" },
+  { name = "clangd",  exe = "clangd" },
   { name = "pyright", exe = "pyright-langserver" },
-  { name = "ruff", exe = "ruff" },
-  { name = "lua_ls", exe = "lua-language-server" },
-  { name = "cssls", exe = "vscode-css-language-server" },
-  { name = "ts_ls", exe = "typescript-language-server" },
+  { name = "ruff",    exe = "ruff" },
+  { name = "lua_ls",  exe = "lua-language-server" },
+  { name = "cssls",   exe = "vscode-css-language-server" },
+  { name = "ts_ls",   exe = "typescript-language-server" },
 }
 
 local servers_to_enable = {}
