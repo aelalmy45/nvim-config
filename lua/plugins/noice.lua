@@ -50,7 +50,6 @@ return {
         },
       })
 
-      -- اختصارات (اختياري)
       vim.keymap.set("n", "<leader>nh", function()
         require("noice").cmd("history")
       end, { desc = "Noice History" })
@@ -61,7 +60,6 @@ return {
     end,
   },
 
-  -- إضافة nvim-notify (ضرورية)
   {
     "rcarriga/nvim-notify",
     config = function()
