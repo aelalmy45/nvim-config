@@ -55,12 +55,17 @@ vim.lsp.config["lua_ls"] = {
   cmd = {
     bin "lua-language-server",
   },
+
   filetypes = { "lua" },
 
   settings = {
     Lua = {
       runtime = {
-        version = "LuaJIT",
+        version = "Lua 5.5",
+        path = {
+          "?.lua",
+          "?/init.lua",
+        },
       },
 
       diagnostics = {
