@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  stylua:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install stylua
+        run: |
+          curl -sL -o stylua.zip https://github.com/JohnnyMorganz/StyLua/releases/download/v0.20.0/stylua-linux-x86_64.zip
+          unzip -q stylua.zip
+          chmod +x stylua
+          sudo mv stylua /usr/local/bin/
+
+      - name: Check formatting
+        run: stylua --check .
+
+  startup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Neovim
+        run: |
+          curl -sLO https://github.com/neovim/neovim/releases/download/v0.10.2/nvim-linux64.tar.gz
+          tar xzf nvim-linux64.tar.gz
+          sudo mv nvim-linux64 /opt/nvim
+          sudo ln -s /opt/nvim/bin/nvim /usr/local/bin/nvim
+          nvim --version | head -1
+
+      - name: Link config
+        run: |
+          mkdir -p "$HOME/.config"
+          ln -s "$PWD" "$HOME/.config/nvim"
+
+      - name: Install plugins (first boot)
+        run: nvim --headless "+Lazy! restore" +qa || true
+
+      - name: Headless startup check
+        run: |
+          nvim --headless "+lua if vim.v.errmsg ~= '' then print('STARTUP ERROR: ' .. vim.v.errmsg) os.exit(1) end local n = #require('lazy').plugins() print('startup ok, ' .. n .. ' plugins') if n == 0 then os.exit(1) end" +qa
