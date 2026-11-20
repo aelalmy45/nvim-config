@@ -9,7 +9,7 @@ return {
       "rcarriga/nvim-notify",
     },
     config = function()
-      require("noice").setup({
+      require("noice").setup {
         lsp = {
           override = {
             ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
@@ -48,14 +48,14 @@ return {
           inc_rename = false,
           lsp_doc_border = true,
         },
-      })
+      }
 
       vim.keymap.set("n", "<leader>nh", function()
-        require("noice").cmd("history")
+        require("noice").cmd "history"
       end, { desc = "Noice History" })
 
       vim.keymap.set("n", "<leader>nd", function()
-        require("noice").cmd("dismiss")
+        require("noice").cmd "dismiss"
       end, { desc = "Dismiss All Notifications" })
     end,
   },
@@ -63,12 +63,12 @@ return {
   {
     "rcarriga/nvim-notify",
     config = function()
-      require("notify").setup({
+      require("notify").setup {
         background_colour = "#000000",
         timeout = 5000,
         top_down = true,
-      })
-      vim.notify = require("notify")
+      }
+      vim.notify = require "notify"
     end,
   },
 }

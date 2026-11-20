@@ -1,7 +1,7 @@
 return {
   {
     "stevearc/conform.nvim",
-    event = 'BufWritePre', -- uncomment for format on save
+    event = "BufWritePre", -- uncomment for format on save
     opts = require "configs.conform",
   },
 
@@ -16,7 +16,6 @@ return {
   -- test new blink
   { import = "nvchad.blink.lazyspec" },
 
-
   {
     "nvim-treesitter/nvim-treesitter",
     opts = require "configs.treesitter",
@@ -26,10 +25,8 @@ return {
 
   { import = "plugins.rainbow-indent" },
 
-
   { import = "plugins.harpoon" },
   { import = "plugins.diffview" },
-
 
   { import = "plugins.ts-autotag" },
   { import = "plugins.blink-snippets" },
