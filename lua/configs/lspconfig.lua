@@ -109,11 +109,20 @@ vim.lsp.config["cssls"] = {
   },
 }
 
+
 -- TypeScript / JavaScript
+local npm_root = vim.fn.trim(vim.fn.system({ "npm", "root", "-g" }))
+
 vim.lsp.config["ts_ls"] = {
   cmd = {
     bin "typescript-language-server",
     "--stdio",
+  },
+
+  init_options = {
+    tsserver = {
+      path = npm_root .. "/typescript/lib/tsserver.js",
+    },
   },
 
   filetypes = {
@@ -131,11 +140,11 @@ vim.lsp.config["ts_ls"] = {
   },
 
   on_attach = function(client, bufnr)
-    -- Conform (prettier) handles formatting.
     client.server_capabilities.documentFormattingProvider = false
     client.server_capabilities.documentRangeFormattingProvider = false
   end,
 }
+
 
 -- ============================================================
 -- Optional LSP Servers
@@ -200,12 +209,12 @@ vim.lsp.config["emmet_language_server"] = {
 -- ============================================================
 
 local wanted_servers = {
-  { name = "clangd", exe = "clangd" },
+  { name = "clangd",  exe = "clangd" },
   { name = "pyright", exe = "pyright-langserver" },
-  { name = "ruff", exe = "ruff" },
-  { name = "lua_ls", exe = "lua-language-server" },
-  { name = "cssls", exe = "vscode-css-language-server" },
-  { name = "ts_ls", exe = "typescript-language-server" },
+  { name = "ruff",    exe = "ruff" },
+  { name = "lua_ls",  exe = "lua-language-server" },
+  { name = "cssls",   exe = "vscode-css-language-server" },
+  { name = "ts_ls",   exe = "typescript-language-server" },
 }
 
 local servers_to_enable = {}
